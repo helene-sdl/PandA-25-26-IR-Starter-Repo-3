@@ -8,9 +8,16 @@ def find_spans(text: str, pattern: str):
     """Return [(start, end), ...] for all (possibly overlapping) matches.
     Inputs should already be lowercased by the caller."""
 
-    spans = []
-
     # ToDo 1: Copy your solution from the last exercise
+    if pattern == "" or len(pattern) > len(text):
+        return []
+
+    spans = []
+    i = 0
+
+    for i in range(len(text)-len(pattern)+1):
+        if text[i:i+len(pattern)] == pattern:
+            spans.append((i, i + len(pattern)))
 
     return spans
 
