@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Part 2 starter CLI (students complete manual substring search + highlighting)."""
 from typing import List, Dict, Tuple
-from .constants import BANNER, HELP
-from .sonnets import SONNETS
+from constants import BANNER, HELP
+from sonnets import SONNETS
 
 def find_spans(text: str, pattern: str):
     """Return [(start, end), ...] for all (possibly overlapping) matches.
@@ -13,7 +13,6 @@ def find_spans(text: str, pattern: str):
         return []
 
     spans = []
-    i = 0
 
     for i in range(len(text)-len(pattern)+1):
         if text[i:i+len(pattern)] == pattern:
@@ -81,13 +80,32 @@ def print_results(query: str, results, highlight: bool):
 def combine_results(result1, result2):
     # ToDo 3)
     #  Merge the two search results:
-    #         - the number of matches,
-    #         - the spans in the title and
-    #         - the spans found in the individual lines
+    #         - the number of matches, (last)
+    #         - the spans in the title and (first, bc easy i hope?)
+    #         - the spans found in the individual lines (in between)
     #  Returned the combined search result
-    combined = result1
+
+    combined_title_spans = result1["title_spans"] + result2["title_spans"]
+
+    combined_line_matches = []
+    for line_m1 in result1["line_matches"]:
+        for line_m2 in result2["line_matches"]:
+            if line_m1["line_no"] == line_m2["line_no"]:
+                combined_line_matches.append(
+                 {"text": line_m1["text"],
+                  "spans": line_m1["spans"] + line_m2["spans"]})
+
+    total_matches = len(combined_line_matches) + sum(len(lm["spans"]) for lm in combined_line_matches)
+
+    combined = {
+        "title": result1["title"],
+        "title_spans": combined_title_spans,
+        "line_matches": combined_line_matches,
+        "matches": total_matches,
+    }
 
     return combined
+
 
 
 def main() -> None:
@@ -126,7 +144,7 @@ def main() -> None:
         combined_results = []
 
         #  ToDo 2) Split the raw input string into words using a built-in method of string
-        words = raw #  ... your code here ...
+        words = raw.split() #  ... your code here ...
 
         for word in words:
             # Searching for the word in all sonnets
