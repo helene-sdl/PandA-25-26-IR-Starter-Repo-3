@@ -78,24 +78,30 @@ def print_results(query: str, results, highlight: bool):
             print("  " + line_out)
 
 def combine_results(result1, result2):
-    # ToDo 3)
-    #  Merge the two search results:
-    #         - the number of matches, (last)
-    #         - the spans in the title and (first, bc easy i hope?)
-    #         - the spans found in the individual lines (in between)
-    #  Returned the combined search result
-
+    # ToDo 1) Copy your solution from exercise 3
     combined_title_spans = result1["title_spans"] + result2["title_spans"]
 
     combined_line_matches = []
     for line_m1 in result1["line_matches"]:
-        for line_m2 in result2["line_matches"]:
-            if line_m1["line_no"] == line_m2["line_no"]:
-                combined_line_matches.append(
-                 {"text": line_m1["text"],
-                  "spans": line_m1["spans"] + line_m2["spans"]})
+        combined_line_matches.append({
+            "line_no": line_m1["line_no"],
+            "text": line_m1["text"],
+            "spans": line_m1["spans"].copy()
+             })
 
-    total_matches = len(combined_line_matches) + sum(len(lm["spans"]) for lm in combined_line_matches)
+    for line_m2 in result2["line_matches"]:
+        found = False
+        for combined_line in combined_line_matches:
+            if combined_line["line_no"] == line_m2["line_no"]:
+                combined_line["spans"].extend(line_m2["spans"])
+                found = True
+        if not found:
+            combined_line_matches.append({
+                "line_no": line_m2["line_no"],
+                "text": line_m2["text"],
+                "spans": line_m2["spans"].copy()
+            })
+    total_matches = sum(len(lm["spans"]) for lm in combined_line_matches)
 
     combined = {
         "title": result1["title"],
@@ -105,6 +111,7 @@ def combine_results(result1, result2):
     }
 
     return combined
+
 
 
 
